@@ -7,7 +7,9 @@ import {
   logout,
   getUser,
   forgotPassword,
-  resetPassword,
+  validateOtp,
+  setNewPassword,
+  getRoomDetails,
   updateProfile,
   orgName
 
@@ -16,14 +18,16 @@ import { isAuthenticated } from "../middlewares/auth.js";
 
 const router = express.Router();
 
-router.post("/register", register);
-router.post("/otp-verification", verifyOTP);
-router.post("/getorgname",orgName);
-router.post("/login", login);
-router.get("/logout", isAuthenticated, logout);
-router.get("/me", isAuthenticated, getUser);
+router.post("/register", register); //done
+router.post("/otp-verification", verifyOTP); //done
+router.post("/getorgname",orgName); //done
+router.post("/login", login); //done
+router.get("/logout", isAuthenticated, logout); //done
+router.get("/me", isAuthenticated, getUser); //done
 router.post("/password/forgot", forgotPassword);
-router.put("/password/reset/:token", resetPassword);
+router.post("/password/validate-otp", validateOtp);  
+router.put("/password/set-new", setNewPassword);
+router.get("/room/details/:managerKey",isAuthenticated, getRoomDetails);
 router.put("/update-profile", isAuthenticated, upload.single("profilePic"), updateProfile);
 
 export default router;

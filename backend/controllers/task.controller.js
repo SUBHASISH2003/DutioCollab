@@ -5,8 +5,8 @@ import { User } from '../models/user.model.js';
 // Create a new task (Manager only)
 export const createTask = async (req, res) => {
   try {
-    const { title, description, deadline, assignedEmployees } = req.body;
-    if (!title ||!description ||!deadline ||!assignedEmployees) {
+    const { title, description, deadline,taskType ,assignedEmployees } = req.body;
+    if (!title ||!description ||!deadline ||!assignedEmployees || !taskType) {
       return res.status(400).json({ message: 'All fields are required.' });
     }
 
@@ -37,9 +37,12 @@ export const createTask = async (req, res) => {
       title,
       description,
       deadline: deadlineDate,
+      taskType,
       assignedEmployees: assignedEmployeeIds,
       createdBy: req.user._id,
     });
+
+    await User.findByIdAndUpdate(req.user._id, { $inc: { totalNoOfTaskCreated: 1 } });
 
     await task.save();
     res.status(201).json(task);
@@ -47,7 +50,6 @@ export const createTask = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
-
 // Get tasks (Employees see assigned tasks, Managers see all tasks)
 export const getTasks = async (req, res) => {
   try {

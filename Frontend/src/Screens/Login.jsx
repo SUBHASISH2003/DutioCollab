@@ -5,6 +5,9 @@ import {UserContext} from "../context/UserContextProvider";
 import axios from '../config/axiosConfig.jsx'
 
 export const Login = () => {
+
+  
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [role, setRole] = useState("");
@@ -28,11 +31,14 @@ export const Login = () => {
   .then((response) => {
     const { user, token } = response.data; 
     setRole(user.role);
-    localStorage.setItem('userData', JSON.stringify(user));
-    const storedUserData = localStorage.getItem('userData');
+    localStorage.setItem('userRole', JSON.stringify(user.role));
+    localStorage.setItem('token',JSON.stringify(token));
+    localStorage.setItem('roomKey',user.managerKey)
+    const storedUserData = localStorage.getItem('userRole');
     console.log(storedUserData);
-    const parsedUserData = JSON.parse(storedUserData);
-    setUser(parsedUserData); 
+    setUser(user);
+    
+    
     navigate(`/${user.role}/dashboard`);
   
     console.log(response);
@@ -97,7 +103,7 @@ export const Login = () => {
       <p>
         Don't have an account? <Link to="/">Create Account</Link>
       </p>
-      <p ><Link to="/password/reset" className="forgotPassLink">Forgot password?</Link> </p>
+      <p ><Link to="/otpvalidation" className="forgotPassLink">Forgot password?</Link> </p>
     </div>
   );
 };

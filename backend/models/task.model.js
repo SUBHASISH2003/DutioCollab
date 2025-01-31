@@ -21,7 +21,10 @@ const taskSchema = new mongoose.Schema({
     type: Date,
     required: [true, 'Please add a deadline'],
   },
-  
+  taskType:{
+    type:String,
+    required:true
+  },
   // Assigned employees - array of references to User model
   assignedEmployees: [
     {

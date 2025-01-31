@@ -91,4 +91,7 @@
     text-shadow: 0 0 5px rgba(255, 204, 0, 0.8);
     font-size: 1.1rem;
   }
-  
+  .Logout{
+    background-color: crimson !important;
+  }
+

@@ -10,7 +10,7 @@ const MainNav = () => {
 
   // Load user data from localStorage on component mount
   useEffect(() => {
-    const storedUser = JSON.parse(localStorage.getItem('userData'));
+    const storedUser = JSON.parse(localStorage.getItem('userRole'));
     setUser(storedUser);
   }, []); // Empty dependency array ensures this runs only once
 
@@ -44,19 +44,19 @@ const MainNav = () => {
       {/* Navigation Menu */}
       <ul className={isMobileView && isToggled ? 'menu-mobile' : 'menu-web'}>
         <li>
-          <Link className='NavLinks' to={`/${user?.role}/dashboard`}>Home</Link>
+          <Link className='NavLinks' to={`/${user}/dashboard`}>Home</Link>
         </li>
         <li>
-          <Link className='NavLinks' to={`/${user?.role}/room`}>Room</Link>
+          <Link className='NavLinks' to={`/${user}/room`}>Room</Link>
         </li>
         <li>
-          <Link className='NavLinks' to={`/${user?.role}/leave`}>Leave</Link>
+          <Link className='NavLinks' to={`/${user}/leave`}>Leave</Link>
         </li>
         <li>
-          <Link className='NavLinks' to={`/${user?.role}/chat`}>ChatBox</Link>
+          <Link className='NavLinks' to={`/${user}/chat`}>ChatBox</Link>
         </li>
         <li>
-          <Link className='NavLinks' to={`/${user?.role}/contact`}>Contact</Link>
+          <Link className='NavLinks' to={`/${user}/contact`}>Contact</Link>
         </li>
       </ul>
 

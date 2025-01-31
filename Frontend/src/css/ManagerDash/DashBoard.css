@@ -52,6 +52,13 @@
   color: #17a2b8;
   text-align: center;
 }
+.createTaskCon{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  gap: 10px;
+}
 
 /* Responsive Breakpoints */
 @media screen and (max-width: 1200px) {
@@ -61,7 +68,9 @@
   .ManagerDetails {
     width: 100%;
   }
-  
+  .createTaskCon img{
+    width: 40%;
+  }
 }
 
 @media screen and (max-width: 768px) {
@@ -69,7 +78,12 @@
     flex-direction: column;
     width: 95%;
   }
-
+  .createTaskCon{
+    flex-direction: column;
+  }
+  .createTaskCon img{
+    height: 40%;
+  }
   .ManagerDetails {
     width: 100%;
     padding: 1.5rem;

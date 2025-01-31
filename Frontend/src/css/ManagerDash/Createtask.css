@@ -1,9 +1,8 @@
 .create-task-main {
-    /* max-width: 500px; */
     width: 100%;
-    /* margin: 50px auto; */
     padding: 20px;
-    background: linear-gradient(135deg, #E3FDFD, #CBF1F5);
+    /* background: linear-gradient(135deg, #E3FDFD, #CBF1F5); */
+    /* background-color:#96e5e9 ; */
     border-radius: 15px;
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
     color: #2e2e2e;
@@ -59,7 +58,8 @@
     font-size: 1.2rem;
     font-weight: bold;
     color: #ffffff;
-    background: #71c9ce;
+    /* background: #71c9ce; */
+    background-color: #3b1e54;
     border: none;
     border-radius: 5px;
     cursor: pointer;
@@ -67,6 +67,47 @@
   }
   
   .submit-button:hover {
-    background: #5ab4b9;
+    background: #7c51a1;
+  }
+  
+
+  .modal-overlay {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .modal-content {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    width: 50%;
+    text-align: center;
+  }
+  
+  .modal-content ul {
+    list-style: none;
+    padding: 0;
+  }
+  
+  .modal-content li {
+    padding: 10px;
+    cursor: pointer;
+    border-bottom: 1px solid #ccc;
+  }
+  
+  .close-button {
+    margin-top: 10px;
+    padding: 10px;
+    background: red;
+    color: white;
+    border: none;
+    cursor: pointer;
   }
   

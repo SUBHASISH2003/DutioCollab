@@ -61,13 +61,31 @@ const userSchema = new mongoose.Schema({
   },
   verificationCode: Number,
   verificationCodeExpire: Date,
-  resetPasswordToken: String,
-  resetPasswordExpire: Date,
+  resetPasswordOtp: {
+    type: String,
+  },
+  resetPasswordOtpExpire: {
+    type: Date,
+  },
   createdAt: {
     type: Date,
     default: Date.now,
   },
 });
+
+// Conditionally add fields only for managers
+userSchema.add({
+  noOfLinkedEmp: {
+    type: Number,
+    default: 0,
+  },
+  totalNoOfTaskCreated: {
+    type: Number,
+    default: 0,
+  },
+});
+
+
 
 // Virtual for DateOfBirth
 userSchema.virtual("DateOfBirth").set(function (dob) {
@@ -80,6 +98,8 @@ userSchema.virtual("DateOfBirth").set(function (dob) {
     this.age = age;
   }
 });
+
+
 
 userSchema.pre("save", async function (next) {
   if (this.isModified("password")) {

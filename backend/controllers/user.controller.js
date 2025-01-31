@@ -1,6 +1,7 @@
 import ErrorHandler from "../middlewares/error.js";
 import { catchAsyncError } from "../middlewares/catchAsyncError.js";
 import { User } from "../models/user.model.js";
+import {Task} from '../models/task.model.js'
 import { sendEmail } from "../utils/sendEmail.js";
 import { sendToken } from "../utils/sendToken.js";
 import crypto from "crypto";
@@ -14,7 +15,6 @@ const deleteTempFile = (filePath) => {
     if (err) console.error("Failed to delete temp file:", err);
   });
 };
-
 
 export const register = catchAsyncError(async (req, res, next) => {
   try {
@@ -79,6 +79,8 @@ export const register = catchAsyncError(async (req, res, next) => {
       bio,
       profilePic,
       organizationName,
+      noOfLinkedEmp: 0,
+      totalNoOfTaskCreated: 0,
     });
 
     // sendToken(user, 201, "Manager registered successfully.", res);
@@ -101,8 +103,7 @@ export const register = catchAsyncError(async (req, res, next) => {
       profilePic,
       organizationName: manager.organizationName,
     });
-
-    // sendToken(user, 201, "Employee registered successfully.", res);
+    
   } else {
     return next(new ErrorHandler("Invalid role. Must be 'Manager' or 'Employee'.", 400));
   }
@@ -121,7 +122,6 @@ export const register = catchAsyncError(async (req, res, next) => {
     next(error);
   }
 });
-
 
 
 
@@ -177,8 +177,6 @@ export const verifyOTP = catchAsyncError(async (req, res, next) => {
     const userAllEntries = await User.find({
      email,
      accountVerified: false,
-        
-      
     }).sort({ createdAt: -1 });
 
     if (!userAllEntries) {
@@ -192,8 +190,8 @@ export const verifyOTP = catchAsyncError(async (req, res, next) => {
 
       await User.deleteMany({
         _id: { $ne: user._id },
-        
-          email, accountVerified: false 
+        email,
+        accountVerified: false,
         
       });
     } else {
@@ -209,8 +207,8 @@ export const verifyOTP = catchAsyncError(async (req, res, next) => {
     const verificationCodeExpire = new Date(
       user.verificationCodeExpire
     ).getTime();
-    console.log(currentTime);
-    console.log(verificationCodeExpire);
+
+
     if (currentTime > verificationCodeExpire) {
       return next(new ErrorHandler("OTP Expired.", 400));
     }
@@ -220,11 +218,21 @@ export const verifyOTP = catchAsyncError(async (req, res, next) => {
     user.verificationCodeExpire = null;
     await user.save({ validateModifiedOnly: true });
 
+
+    // **Now increment noOfLinkedEmp for the manager**
+    if (user.role === "Employee" && user.linkedManagerKey) {
+       await User.findOneAndUpdate(
+        { managerKey: user.linkedManagerKey },
+        { $inc: { noOfLinkedEmp: 1 } }
+        );
+      }
+
     sendToken(user, 200, "Account Verified.", res);
   } catch (error) {
     return next(new ErrorHandler("Internal Server Error.", 500));
   }
 });
+
 
 export const login = catchAsyncError(async (req, res, next) => {
   const { email, password, role } = req.body;
@@ -275,35 +283,39 @@ export const getUser = catchAsyncError(async (req, res, next) => {
   });
 });
 
+
 export const forgotPassword = catchAsyncError(async (req, res, next) => {
-  const user = await User.findOne({
-    email: req.body.email,
-    accountVerified: true,
-  });
+  const { email } = req.body;
+
+  if (!email) {
+    return next(new ErrorHandler("Email is required.", 400));
+  }
+
+  const user = await User.findOne({ email, accountVerified: true });
   if (!user) {
     return next(new ErrorHandler("User not found.", 404));
   }
-  const resetToken = user.generateResetPasswordToken();
+
+  // Generate OTP for password reset
+  const resetPasswordOtp = Math.floor(100000 + Math.random() * 900000); // Generate 6-digit OTP
+  user.resetPasswordOtp = resetPasswordOtp;
+  user.resetPasswordOtpExpire = Date.now() + 10 * 60 * 1000; // OTP valid for 10 minutes
   await user.save({ validateBeforeSave: false });
-  const resetPasswordUrl = `${process.env.FRONTEND_URL}/password/reset/${resetToken}`;
 
-  // const message = `Your Reset Password Token is:- \n\n ${resetPasswordUrl} \n\n If you have not requested this email then please ignore it.`;
-
-    // Inline email template
-    const message = `
+  const message = `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px; background-color: #f9f9f9;">
-      <h2 style="color: #71C9CE; text-align: center;">Reset Password Request</h2>
+      <h2 style="color: #71C9CE; text-align: center;">Reset Password OTP</h2>
       <p style="font-size: 16px; color: #333;">Dear ${user.name || "User"},</p>
       <p style="font-size: 16px; color: #333;">We received a request to reset your password.</p>
-      <p style="font-size: 16px; color: #333;">To reset your password, please click the button below:</p>
+      <p style="font-size: 16px; color: #333;">Your OTP for password reset is:</p>
       <div style="text-align: center; margin: 20px 0;">
-        <a href="${resetPasswordUrl}" style="display: inline-block; color: #ffffff; background-color: #71C9CE; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-size: 16px;">
-          Reset Password
-        </a>
+        <span style="display: inline-block; font-size: 24px; font-weight: bold; color: #71C9CE; padding: 10px 20px; border: 1px solid #4CAF50; border-radius: 5px; background-color: #e8f5e9;">
+          ${resetPasswordOtp}
+        </span>
       </div>
-      <p style="font-size: 16px; color: #333;">If you did not request this, you can safely ignore this email.</p>
+      <p style="font-size: 16px; color: #333;">The OTP will expire in 10 minutes. Please use it to reset your password.</p>
       <footer style="margin-top: 20px; text-align: center; font-size: 14px; color: #999;">
-        <p>Thank you,<br>DUTIO Team </p>
+        <p>Thank you,<br>DUTIO Team</p>
         <p style="font-size: 12px; color: #aaa;">This is an automated message. Please do not reply to this email.</p>
       </footer>
     </div>
@@ -312,62 +324,180 @@ export const forgotPassword = catchAsyncError(async (req, res, next) => {
   try {
     await sendEmail({
       email: user.email,
-      subject: "DUTIO APP RESET PASSWORD",
+      subject: "DUTIO Reset Password OTP",
       message,
     });
+
     res.status(200).json({
       success: true,
-      message: `Email sent to ${user.email} successfully.`,
+      message: `OTP sent to ${user.email} successfully.`,
     });
   } catch (error) {
-    user.resetPasswordToken = undefined;
-    user.resetPasswordExpire = undefined;
+    user.resetPasswordOtp = undefined;
+    user.resetPasswordOtpExpire = undefined;
     await user.save({ validateBeforeSave: false });
-    return next(
-      new ErrorHandler(
-        error.message ? error.message : "Cannot send reset password token.",
-        500
-      )
-    );
+
+    return next(new ErrorHandler("Failed to send OTP. Please try again.", 500));
   }
 });
 
-export const resetPassword = catchAsyncError(async (req, res, next) => {
-  const { token } = req.params;
-  const resetPasswordToken = crypto
-    .createHash("sha256")
-    .update(token)
-    .digest("hex");
+
+export const validateOtp = catchAsyncError(async (req, res, next) => {
+  const { email, otp } = req.body;
+
+  if (!email || !otp) {
+    return next(new ErrorHandler("Email and OTP are required.", 400));
+  }
+
   const user = await User.findOne({
-    resetPasswordToken,
-    resetPasswordExpire: { $gt: Date.now() },
+    email,
+    resetPasswordOtp: otp,
+    resetPasswordOtpExpire: { $gt: Date.now() }, // Check if OTP is not expired
   });
+
   if (!user) {
-    return next(
-      new ErrorHandler(
-        "Reset password token is invalid or has been expired.",
-        400
-      )
-    );
+    return next(new ErrorHandler("Invalid OTP or OTP has expired.", 400));
   }
 
-  if (req.body.password !== req.body.confirmPassword) {
-    return next(
-      new ErrorHandler("Password & confirm password do not match.", 400)
-    );
+  res.status(200).json({
+    success: true,
+    message: "OTP is valid.",
+  });
+});
+
+export const setNewPassword = catchAsyncError(async (req, res, next) => {
+  const { email, password, confirmPassword } = req.body;
+
+  if (!email || !password || !confirmPassword) {
+    return next(new ErrorHandler("All fields are required.", 400));
   }
 
-  user.password = req.body.password;
-  user.resetPasswordToken = undefined;
-  user.resetPasswordExpire = undefined;
+  if (password !== confirmPassword) {
+    return next(new ErrorHandler("Password and confirm password do not match.", 400));
+  }
+
+  const user = await User.findOne({ email });
+
+  if (!user) {
+    return next(new ErrorHandler("User not found.", 404));
+  }
+
+  user.password = password; // Save the new password
+  user.resetPasswordOtp = undefined; // Clear the OTP
+  user.resetPasswordOtpExpire = undefined; // Clear OTP expiration
   await user.save();
 
-  sendToken(user, 200, "Reset Password Successfully.", res);
+  res.status(200).json({
+    success: true,
+    message: "Password has been updated successfully.",
+  });
 });
+
+
+export const getRoomDetails = async (req, res) => {
+  try {
+    const { managerKey } = req.params;
+
+    // Ensure the user is authenticated and their data is in req.user (from middleware)
+    const loggedInUser = req.user;
+
+    if (!loggedInUser) {
+      return res.status(401).json({ message: "Unauthorized access. Please log in." });
+    }
+
+    // Check if the logged-in user is a manager or an employee
+    if (
+      loggedInUser.role === "Manager" &&
+      loggedInUser.managerKey !== managerKey
+    ) {
+      return res.status(403).json({ message: "You are not authorized to view this data." });
+    }
+
+    if (
+      loggedInUser.role === "Employee" &&
+      loggedInUser.linkedManagerKey !== managerKey
+    ) {
+      return res.status(403).json({ message: "You are not authorized to view this data." });
+    }
+
+    // Fetch the manager based on managerKey
+    const manager = await User.findOne({ managerKey, role: "Manager" });
+
+    if (!manager) {
+      return res.status(404).json({ message: "Manager not found." });
+    }
+
+    // Fetch all employees linked to this manager
+    const employees = await User.find({ linkedManagerKey: managerKey, role: "Employee" });
+
+    // Fetch employee performance and task stats for each employee
+    const employeeData = await Promise.all(
+      employees.map(async (employee) => {
+        // Find tasks where the employee is assigned
+        const tasks = await Task.find({ assignedEmployees: employee._id });
+
+        // Initialize task counters
+        let acceptedTasks = 0;
+        let rejectedTasks = 0;
+        let completedTasks = 0;
+        let failedTasks = 0;
+        let pendingTasks = 0;
+
+        // Process each task
+        tasks.forEach((task) => {
+          const response = task.employeeResponses.find(
+            (resp) => resp.employee.toString() === employee._id.toString()
+          );
+
+          if (response) {
+            // Count tasks based on the response and status
+            if (response.response === "accept") acceptedTasks++;
+            if (response.response === "reject") rejectedTasks++;
+
+            if (response.status === "completed") completedTasks++;
+            if (response.status === "failed") failedTasks++;
+            if (response.status === "pending") pendingTasks++;
+          }
+        });
+
+        // Calculate performance percentage
+        const totalTasks = completedTasks + failedTasks + pendingTasks;
+        const performance = totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0;
+
+        // Return employee data with task stats
+        return {
+          name: employee.name,
+          email: employee.email,
+          profilePic:employee.profilePic,
+          performance:` ${performance.toFixed(2)}%`,
+          totalAcceptedTasks: acceptedTasks,
+          totalRejectedTasks: rejectedTasks,
+          totalCompletedTasks: completedTasks,
+          totalPendingTasks: pendingTasks,
+          totalFailedTasks: failedTasks,
+        };
+      })
+    );
+
+    // Structure the response to include manager info and employees with performance and task stats
+    const response = {
+      managerKey: manager.managerKey,
+      manager: {
+        name: manager.name,
+        email: manager.email,
+      },
+      employees: employeeData,
+    };
+
+    return res.status(200).json({ message: "Manager and employees fetched successfully.", data: response });
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+};
 
 
 export const updateProfile = catchAsyncError(async (req, res, next) => {
-  const { bio } = req.body;
+  const { bio ,organizationName} = req.body;
 
   // Ensure the user is logged in
   const userId = req.user._id;
@@ -404,6 +534,7 @@ export const updateProfile = catchAsyncError(async (req, res, next) => {
   }
 
   // Update the fields if provided
+  if(organizationName) user.organizationName = organizationName
   if (bio) user.bio = bio;
   user.profilePic = profilePicUrl;
 
