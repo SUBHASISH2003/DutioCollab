@@ -12,6 +12,10 @@ import ProfileEdit from "../Screens/ManagerDashboard/ProfileEdit";
 import TaskDetails from "../Screens/ManagerDashboard/TaskDetails";
 import OtpValidation from '../Screens/OtpValidation.jsx'
 import ManagerRoom from "../Screens/ManagerDashboard/Room/ManagerRoom.jsx";
+import ManagerLeaveMain from "../Screens/ManagerDashboard/Leave/ManagerLeaveMain.jsx";
+import Pending from '../Screens/ManagerDashboard/Leave/Pending.jsx'
+import Rejected from '../Screens/ManagerDashboard/Leave/Rejected.jsx'
+import Accepted from '../Screens/ManagerDashboard/Leave/Accepted.jsx'
 const AppRoutes = () => {
   return (
     <React.StrictMode>
@@ -30,7 +34,11 @@ const AppRoutes = () => {
             <Route path="/Manager/profile/edit" element={<ProfileEdit/>}></Route>
             <Route path="/Manager/task/details" element={<TaskDetails/>}></Route>
             <Route path="/Manager/room" element={<ManagerRoom/>}/>
-            
+            <Route path="/Manager/leave" element={<ManagerLeaveMain/>}>
+              <Route path="pending" element={<Pending/>}/>
+              <Route path="accepted" element={<Accepted/>}/>
+              <Route path="rejected" element={<Rejected/>}/>
+            </Route>
           </Routes>
         </BrowserRouter>
       </UserContextProvider>

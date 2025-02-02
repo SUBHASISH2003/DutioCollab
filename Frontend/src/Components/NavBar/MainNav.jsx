@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import '../../css/NavBar/MainNav.css';
 import { GiHamburgerMenu } from "react-icons/gi";
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 
 const MainNav = () => {
+  const location = useLocation();
   const [isToggled, setIsToggled] = useState(false);
   const [isMobileView, setIsMobileView] = useState(window.innerWidth <= 1000); // Initial check for mobile view
   const [user, setUser] = useState(null); // State to store user data
@@ -43,19 +44,19 @@ const MainNav = () => {
 
       {/* Navigation Menu */}
       <ul className={isMobileView && isToggled ? 'menu-mobile' : 'menu-web'}>
-        <li>
+        <li className={location.pathname === `/${user}/dashboard`? 'LinkActive' : ''}>
           <Link className='NavLinks' to={`/${user}/dashboard`}>Home</Link>
-        </li>
-        <li>
+        </li >
+        <li className={location.pathname === `/${user}/room`? 'LinkActive' : ''}>
           <Link className='NavLinks' to={`/${user}/room`}>Room</Link>
         </li>
-        <li>
-          <Link className='NavLinks' to={`/${user}/leave`}>Leave</Link>
+        <li className={location.pathname === `/${user}/leave/pending`? 'LinkActive' : ''}>
+          <Link className='NavLinks' to={`/${user}/leave/pending`}>Leave</Link>
         </li>
-        <li>
+        <li className={location.pathname === `/${user}/chat`? 'LinkActive' : ''}>
           <Link className='NavLinks' to={`/${user}/chat`}>ChatBox</Link>
         </li>
-        <li>
+        <li className={location.pathname === `/${user}/contact`? 'LinkActive' : ''}>
           <Link className='NavLinks' to={`/${user}/contact`}>Contact</Link>
         </li>
       </ul>
