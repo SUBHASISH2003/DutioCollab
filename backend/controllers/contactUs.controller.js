@@ -6,26 +6,36 @@ export const submitContact = async (req, res) => {
     const { name, email, message } = req.body;
 
     if (!name || !email || !message) {
-      return res.status(400).json({ message: 'All fields are required.' });
+      return res.status(400).json({ message: "All fields are required." });
     }
 
-     // Compose the email message
-     const emailMessage = `
-     <h1>New Contact Us Submission</h1>
-     <p><strong>Name:</strong> ${name}</p>
-     <p><strong>Email:</strong> ${email}</p>
-     <p><strong>Message:</strong> ${message}</p>
-   `;
+    // Basic email validation using regex
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({ message: "Invalid email address." });
+    }
 
-   // Use the sendEmail utility
-   await contactUsEmail({
-     email, // Admin email from environment variables
-     subject: `Message From Dutio`,
-     message: emailMessage,
-   });
+    // Save to database (if required)
+    await Contact.create({ name, email, message });
 
-   res.status(200).json({ message: 'Your inquiry has been submitted successfully.' });
- } catch (error) {
-   res.status(500).json({ message: 'Failed to send your inquiry. Please try again later.' });
- }
+    // Compose the email message
+    const emailMessage = `
+      <h1>New Enquiry Submission</h1>
+      <p><strong>Name:</strong> ${name}</p>
+      <p><strong>Email:</strong> ${email}</p>
+      <p><strong>Message:</strong> ${message}</p>
+    `;
+
+    // Use the sendEmail utility
+    await contactUsEmail({
+      email: process.env.ADMIN_EMAIL, // Send to admin instead of user
+      subject: `Message From Dutio`,
+      message: emailMessage,
+    });
+
+    res.status(200).json({ message: "Your Enquiry has been submitted successfully." });
+  } catch (error) {
+    console.error(error); // Log error for debugging
+    res.status(500).json({ message: "Failed to send your Enquiry. Please try again later." });
+  }
 };

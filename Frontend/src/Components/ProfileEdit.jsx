@@ -1,16 +1,18 @@
 import React, { useState, useEffect ,useContext } from "react";
-import axios from "../../config/axiosConfig";
-import { useNavigate } from "react-router-dom";
-import profile from "../../assets/Images/profile.png";
-import '../../css/ManagerDash/ProfileEdit.css';
-import { UserContext } from "../../context/UserContextProvider";
+import axios from '../config/axiosConfig'
+import { useLocation, useNavigate } from "react-router-dom";
+import profile from '../assets/Images/profile.png'
+import '../css/Profile/ProfileEdit.css'
+import {UserContext} from '../context/UserContextProvider'
+
 const ProfileEdit = () => {
+  const location = useLocation();
   const navigate = useNavigate();
   const [bio, setBio] = useState("");
   const [profilePic, setProfilePic] = useState(null);
   const [file, setFile] = useState(null);
-  const {user} = useContext(UserContext);
   const [orgName, setOrgName] = useState("")
+  const [role, setRole] = useState("")
   useEffect(() => {
     axios.get('/api/user/me')
     .then((res)=>{
@@ -18,6 +20,7 @@ const ProfileEdit = () => {
       setBio(res.data.user.bio)
       setProfilePic(res.data.user.profilePic)
       setOrgName(res.data.user.organizationName)
+      setRole(res.data.user.role)
     })
     .catch((error)=>{
       console.log(error)
@@ -60,7 +63,7 @@ const ProfileEdit = () => {
     .then((res) => {
       console.log(res);
       setProfilePic(`${axios.defaults.baseURL}${res.data.profilePic}`); // Update with actual image URL
-      navigate('/manager/dashboard');
+      navigate(`/${role}/dashboard`);
     })
     .catch((error) => console.error("Error updating profile", error));
   };
@@ -85,6 +88,7 @@ const ProfileEdit = () => {
       </div>
       <div className="OrgCon">
         <input type="text"
+        disabled={location.pathname === '/Employee/profile/edit'}
           value={orgName}
           onChange={(e)=>{
             setOrgName(e.target.value)

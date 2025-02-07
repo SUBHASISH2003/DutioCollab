@@ -56,7 +56,7 @@ const Accepted = () => {
               <td data-label="Email">{leave.email}</td>
               <td data-label="Leave Type">{leave.leaveType}</td>
               <td data-label="Leave Duration">{leave.leaveDuration}</td>
-              <td data-label="Status" className="status">{leave.status}</td>
+              <td data-label="Status" className="MngAcceptedStatus">{leave.status}</td>
             </tr>
           ))}
         </tbody>

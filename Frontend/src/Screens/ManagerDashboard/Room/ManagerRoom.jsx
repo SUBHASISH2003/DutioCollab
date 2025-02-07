@@ -34,7 +34,7 @@ const ManagerRoom = () => {
         <div className="employee-grid">
           {employees.length > 0 ? (
             employees.map((employee, index) => (
-              <div className="employee-card" key={index}>
+              <div className="employeeManager-card" key={index}>
                 <img src={employee.profilePic?employee.profilePic:profile} alt={employee.name} className="profile-pic" />
                 <h2>{employee.name}</h2>
                 <p className="email">{employee.email}</p>

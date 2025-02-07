@@ -56,8 +56,8 @@ const MainNav = () => {
         <li className={location.pathname === `/${user}/chat`? 'LinkActive' : ''}>
           <Link className='NavLinks' to={`/${user}/chat`}>ChatBox</Link>
         </li>
-        <li className={location.pathname === `/${user}/contact`? 'LinkActive' : ''}>
-          <Link className='NavLinks' to={`/${user}/contact`}>Contact</Link>
+        <li className={location.pathname === `/contact`? 'LinkActive' : ''}>
+          <Link className='NavLinks' to={`/contact`}>Contact</Link>
         </li>
       </ul>
 

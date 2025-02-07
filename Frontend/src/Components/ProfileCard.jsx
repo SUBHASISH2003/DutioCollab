@@ -1,14 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import '../../css/ManagerDash/Profile.css';
-import axios from '../../config/axiosConfig.jsx'
+import '../css/Profile/Profile.css'
+import axios from '../config/axiosConfig.jsx'
 import { useNavigate } from 'react-router-dom';
-import profile from '../../assets/Images/profile.png'
-
+import profile from '../assets/Images/profile.png'
 
 const ProfileCard =() => {
   const [profileData, setProfileData] = useState(null);
   const navigate = useNavigate();
-
+  
   const HandleLogout = ()=>{
     axios.get('/api/user/logout')
     .then((res)=>{
@@ -34,8 +33,10 @@ const ProfileCard =() => {
             console.log(error);
         })
      }, [])
+
+
      const HandleEdit = ()=>{
-      navigate('/manager/profile/edit')
+      navigate(`/${profileData.role}/profile/edit`)
      }
     
 

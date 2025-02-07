@@ -1,11 +1,11 @@
 import React, { useState } from 'react'
 import '../../css/ManagerDash/DashBoard.css'
 import MainNav from '../../Components/NavBar/MainNav'
-import ProfileCard from './ProfileCard'
 import CreateTask from '../../Screens/ManagerDashboard/CreateTask'
 import ManagerTaskDetails from './ManagerTaskDetails'
 import books from '../../assets/Images/books.png'
 import axios from '../../config/axiosConfig.jsx'
+import ProfileCard from '../../Components/ProfileCard.jsx'
 
 
 const ManagerDashMain = () => {
@@ -27,6 +27,7 @@ const ManagerDashMain = () => {
       <MainNav/>
       {/* <video src={bgVideo} autoPlay muted loop></video> */}
       <div className="DashContainer">
+        {/* <ProfileCard/> */}
         <ProfileCard/>
         <div className="ManagerDetails">
           <div className="DetailsBox">

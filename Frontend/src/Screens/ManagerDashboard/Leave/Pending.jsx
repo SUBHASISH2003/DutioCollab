@@ -32,24 +32,24 @@ const Pending = () => {
   }, []);
 
   return (
-    <div className="pending-container">
+    <div className="manager-pending-container">
       {leaveRequests.map((request) => (
-        <div key={request.id} className="leave-card">
-          <div className="employee-info">
-            <img src={request.profilePic} alt="Employee" className="profile-pic" />
-            <div className="employee-details">
+        <div key={request.id} className="manager-leave-card">
+          <div className="manager-employee-info">
+            <img src={request.profilePic} alt="Employee" className="manager-profile-pic" />
+            <div className="manager-employee-details">
               <h3>{request.name}</h3>
-              <p className="leave-type">{request.leaveType}</p>
+              <p className="manager-leave-type">{request.leaveType}</p>
             </div>
           </div>
-          <div className="leave-details">
-            <p className="leave-description">{request.description}</p>
+          <div className="manager-leave-details">
+            <p className="manager-leave-description">{request.description}</p>
             <p><strong>Days:</strong> {request.days}</p>
             <p><strong>Upto:</strong> {request.date}</p>
           </div>
-          <div className="action-buttons">
-            <button className="accept-btn">Accept</button>
-            <button className="reject-btn">Reject</button>
+          <div className="manager-action-buttons">
+            <button className="manager-accept-btn">Accept</button>
+            <button className="manager-reject-btn">Reject</button>
           </div>
         </div>
       ))}
