@@ -1,9 +1,10 @@
 /* Container for the list of leave requests */
 .manager-pending-container {
+    width: 100%;
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    justify-content: center; /* Centers cards properly on smaller screens */
+    justify-content: start; /* Centers cards properly on smaller screens */
     gap: 20px;
     margin-top: 30px;
     padding: 1rem;

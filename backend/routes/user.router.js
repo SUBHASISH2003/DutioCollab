@@ -24,10 +24,10 @@ router.post("/getorgname",orgName); //done
 router.post("/login", login); //done
 router.get("/logout", isAuthenticated, logout); //done
 router.get("/me", isAuthenticated, getUser); //done
-router.post("/password/forgot", forgotPassword);
-router.post("/password/validate-otp", validateOtp);  
-router.put("/password/set-new", setNewPassword);
-router.get("/room/details/:managerKey",isAuthenticated, getRoomDetails);
-router.put("/update-profile", isAuthenticated, upload.single("profilePic"), updateProfile);
+router.post("/password/forgot", forgotPassword); //done
+router.post("/password/validate-otp", validateOtp);  //done
+router.put("/password/set-new", setNewPassword); //done
+router.get("/room/details/:managerKey",isAuthenticated, getRoomDetails); //done
+router.put("/update-profile", isAuthenticated, upload.single("profilePic"), updateProfile); //HalfDone
 
 export default router;

@@ -201,3 +201,53 @@ export const updateLeaveRequestStatus = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+
+// Get Leave Requests by Status
+// Get Leave Requests by Status
+export const getLeaveRequestsByStatus = async (req, res) => {
+  try {
+    const { role, managerKey, email } = req.user;
+    const { status } = req.params;
+
+    if (!["pending", "approved", "rejected"].includes(status)) {
+      return res.status(400).json({ message: "Invalid status value." });
+    }
+
+    let leaveRequests = [];
+
+    if (role === "Manager") {
+      // Get employees linked to the manager, including profilePic
+      const employees = await User.find({ linkedManagerKey: managerKey }, "email profilePic");
+      const employeeEmails = employees.map((employee) => employee.email);
+      const profilePicsMap = employees.reduce((acc, employee) => {
+        acc[employee.email] = employee.profilePic;
+        return acc;
+      }, {});
+
+      // Fetch leave requests for linked employees with the given status
+      leaveRequests = await LeaveRequest.find({ email: { $in: employeeEmails }, status });
+
+      // Attach profilePic to each leave request
+      leaveRequests = leaveRequests.map((request) => ({
+        ...request.toObject(),
+        profilePic: profilePicsMap[request.email] || "",
+      }));
+    } else if (role === "Employee") {
+      // Fetch leave request and employee profilePic
+      const employee = await User.findOne({ email }, "profilePic");
+      leaveRequests = await LeaveRequest.find({ email, status });
+
+      leaveRequests = leaveRequests.map((request) => ({
+        ...request.toObject(),
+        profilePic: employee?.profilePic || "",
+      }));
+    } else {
+      return res.status(403).json({ message: "Unauthorized access." });
+    }
+
+    res.status(200).json(leaveRequests);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};

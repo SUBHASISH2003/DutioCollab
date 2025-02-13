@@ -209,3 +209,33 @@ export const markTaskAsComplete = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+
+export const getTaskDetails = async (req, res) => {
+  try {
+    const { taskId } = req.params;
+    const userId = req.user.id; // Assuming user ID is available from authentication middleware
+
+    // Fetch the task from the database with selected fields for assignedEmployees and createdBy
+    const task = await Task.findById(taskId)
+      .populate("assignedEmployees", "name email")  // Select only name and email fields for assigned employees
+      .populate("createdBy", "name email");  // Select only name and email fields for the creator
+
+    if (!task) {
+      return res.status(404).json({ message: "Task not found" });
+    }
+
+    // Check if the user is the creator or an assigned employee
+    const isCreator = task.createdBy._id.toString() === userId;
+    const isAssigned = task.assignedEmployees.some(emp => emp._id.toString() === userId);
+
+    if (!isCreator && !isAssigned) {
+      return res.status(403).json({ message: "Unauthorized to access this task" });
+    }
+
+    res.status(200).json({ task });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
+  }
+};

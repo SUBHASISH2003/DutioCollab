@@ -40,7 +40,7 @@ const AppRoutes = () => {
             <Route path="/Employee/dashboard" element={<EmpDashMain/>}></Route>
 
             <Route path="/Manager/profile/edit" element={<ProfileEdit/>}></Route>
-            <Route path="/Manager/task/details" element={<TaskDetails/>}></Route>
+            <Route path="/Manager/task/:taskId" element={<TaskDetails/>}></Route>
             <Route path="/Manager/room" element={<ManagerRoom/>}/>
             <Route path="/Manager/leave" element={<ManagerLeaveMain/>}>
               <Route path="pending" element={<Pending/>}/>

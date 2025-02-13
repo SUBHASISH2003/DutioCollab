@@ -398,26 +398,11 @@ export const getRoomDetails = async (req, res) => {
   try {
     const { managerKey } = req.params;
 
-    // Ensure the user is authenticated and their data is in req.user (from middleware)
+    // Ensure the user is authenticated
     const loggedInUser = req.user;
 
     if (!loggedInUser) {
       return res.status(401).json({ message: "Unauthorized access. Please log in." });
-    }
-
-    // Check if the logged-in user is a manager or an employee
-    if (
-      loggedInUser.role === "Manager" &&
-      loggedInUser.managerKey !== managerKey
-    ) {
-      return res.status(403).json({ message: "You are not authorized to view this data." });
-    }
-
-    if (
-      loggedInUser.role === "Employee" &&
-      loggedInUser.linkedManagerKey !== managerKey
-    ) {
-      return res.status(403).json({ message: "You are not authorized to view this data." });
     }
 
     // Fetch the manager based on managerKey
@@ -430,71 +415,100 @@ export const getRoomDetails = async (req, res) => {
     // Fetch all employees linked to this manager
     const employees = await User.find({ linkedManagerKey: managerKey, role: "Employee" });
 
-    // Fetch employee performance and task stats for each employee
-    const employeeData = await Promise.all(
-      employees.map(async (employee) => {
-        // Find tasks where the employee is assigned
-        const tasks = await Task.find({ assignedEmployees: employee._id });
+    // If the logged-in user is an Employee, show only limited data
+    if (loggedInUser.role === "Employee") {
+      if (loggedInUser.linkedManagerKey !== managerKey) {
+        return res.status(403).json({ message: "You are not authorized to view this data." });
+      }
 
-        // Initialize task counters
-        let acceptedTasks = 0;
-        let rejectedTasks = 0;
-        let completedTasks = 0;
-        let failedTasks = 0;
-        let pendingTasks = 0;
+      const response = {
+        managerKey: manager.managerKey,
+        manager: {
+          name: manager.name,
+          email: manager.email,
+        },
+        employees: employees.map((emp) => ({
+          name: emp.name,
+          email: emp.email,
+          profilePic: emp.profilePic
+        })),
+      };
 
-        // Process each task
-        tasks.forEach((task) => {
-          const response = task.employeeResponses.find(
-            (resp) => resp.employee.toString() === employee._id.toString()
-          );
+      return res.status(200).json({ message: "Employee details fetched successfully.", data: response });
+    }
 
-          if (response) {
-            // Count tasks based on the response and status
-            if (response.response === "accept") acceptedTasks++;
-            if (response.response === "reject") rejectedTasks++;
+    // If the logged-in user is a Manager, fetch all employee performance and task stats
+    if (loggedInUser.role === "Manager") {
+      if (loggedInUser.managerKey !== managerKey) {
+        return res.status(403).json({ message: "You are not authorized to view this data." });
+      }
 
-            if (response.status === "completed") completedTasks++;
-            if (response.status === "failed") failedTasks++;
-            if (response.status === "pending") pendingTasks++;
-          }
-        });
+      // Fetch employee performance and task stats
+      const employeeData = await Promise.all(
+        employees.map(async (employee) => {
+          // Find tasks assigned to the employee
+          const tasks = await Task.find({ assignedEmployees: employee._id });
 
-        // Calculate performance percentage
-        const totalTasks = completedTasks + failedTasks + pendingTasks;
-        const performance = totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0;
+          let acceptedTasks = 0,
+            rejectedTasks = 0,
+            completedTasks = 0,
+            failedTasks = 0,
+            pendingTasks = 0;
 
-        // Return employee data with task stats
-        return {
-          name: employee.name,
-          email: employee.email,
-          profilePic:employee.profilePic,
-          performance:` ${performance.toFixed(2)}%`,
-          totalAcceptedTasks: acceptedTasks,
-          totalRejectedTasks: rejectedTasks,
-          totalCompletedTasks: completedTasks,
-          totalPendingTasks: pendingTasks,
-          totalFailedTasks: failedTasks,
-        };
-      })
-    );
+          tasks.forEach((task) => {
+            const response = task.employeeResponses.find(
+              (resp) => resp.employee.toString() === employee._id.toString()
+            );
 
-    // Structure the response to include manager info and employees with performance and task stats
-    const response = {
-      managerKey: manager.managerKey,
-      manager: {
-        name: manager.name,
-        email: manager.email,
-      },
-      employees: employeeData,
-    };
+            if (response) {
+              if (response.response === "accept") acceptedTasks++;
+              if (response.response === "reject") rejectedTasks++;
 
-    return res.status(200).json({ message: "Manager and employees fetched successfully.", data: response });
+              if (response.status === "completed") completedTasks++;
+              if (response.status === "failed") failedTasks++;
+              if (response.status === "pending") pendingTasks++;
+            }
+          });
+
+          const totalTasks = completedTasks + failedTasks + pendingTasks;
+          const performance = totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0;
+
+          let grade = performance >= 80 ? "Excellent" : performance >= 60 ? "Good" : performance >= 30 ? "Average" : "Bad";
+
+          return {
+            name: employee.name,
+            email: employee.email,
+            profilePic: employee.profilePic,
+            performance: `${performance.toFixed(2)}%`,
+            grade,
+            totalAcceptedTasks: acceptedTasks,
+            totalRejectedTasks: rejectedTasks,
+            totalCompletedTasks: completedTasks,
+            totalPendingTasks: pendingTasks,
+            totalFailedTasks: failedTasks,
+          };
+        })
+      );
+
+      const response = {
+        managerKey: manager.managerKey,
+        manager: {
+          name: manager.name,
+          email: manager.email,
+          noOfLinkedEmp: manager.noOfLinkedEmp,
+          totalNoOfTaskCreated: manager.totalNoOfTaskCreated,
+        },
+        employees: employeeData,
+      };
+
+      return res.status(200).json({ message: "Manager and employees fetched successfully.", data: response });
+    }
+
+    return res.status(403).json({ message: "You are not authorized to access this data." });
   } catch (error) {
     return res.status(500).json({ message: error.message });
   }
 };
-
 
 export const updateProfile = catchAsyncError(async (req, res, next) => {
   const { bio ,organizationName} = req.body;
@@ -577,4 +591,6 @@ export const orgName = catchAsyncError(async (req, res, next) => {
     next(new ErrorHandler("Internal server error.", 500));
   }
 });
+
+
 
