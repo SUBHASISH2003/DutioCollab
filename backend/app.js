@@ -22,6 +22,8 @@ app.use(
   })
 );
 
+app.options("*", cors()); 
+
 app.use(morgan('dev'));
 app.use(cookieParser());
 app.use(express.json());
