@@ -14,6 +14,7 @@ import morgan from 'morgan'
 export const app = express();
 config({path:".env"});
 
+const allowedOrigin = process.env.FRONTEND_URL || "https://dutio-collab.vercel.app";
 app.use(
   cors({
     origin: process.env.FRONTEND_URL,
