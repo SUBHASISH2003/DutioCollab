@@ -17,7 +17,7 @@ config({path:".env"});
 const allowedOrigin = process.env.FRONTEND_URL || "https://dutio-collab.vercel.app";
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL,
+    origin: allowedOrigin,
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
     credentials: true,
   })
