@@ -16,7 +16,7 @@ config({path:".env"});
 
 app.use(
   cors({
-    origin: "https://dutio-collab.vercel.app/",
+    origin: "https://dutio-collab.vercel.app",
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
     credentials: true,
   })
