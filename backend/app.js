@@ -14,14 +14,26 @@ import morgan from 'morgan'
 export const app = express();
 config({path:".env"});
 
-const allowedOrigin = process.env.FRONTEND_URL || "https://dutio-collab.vercel.app";
+const allowedOrigins = [
+  "https://dutio-collab.vercel.app",
+  "http://localhost:5173",
+];
+
 app.use(
   cors({
-    origin: allowedOrigin,
-    methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
+    origin: function (origin, callback) {
+      // Allow requests with no origin (like Postman or curl)
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
     credentials: true,
   })
 );
+
 app.options("*", cors()); 
 
 app.use(morgan('dev'));
