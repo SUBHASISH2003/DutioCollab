@@ -1,24 +1,14 @@
 import mongoose from "mongoose";
 
-let isConnected = false; // To prevent multiple connections (esp. in serverless)
-
-export const connection = async () => {
-  if (isConnected) {
-    console.log("🟢 Using existing MongoDB connection.");
-    return;
-  }
-
-  try {
-    const db = await mongoose.connect(process.env.MONGO_URI, {
+export const connection = () => {
+  mongoose
+    .connect(process.env.MONGO_URI, {
       dbName: "WorkHive",
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
+    })
+    .then(() => {
+      console.log("Connected to database.");
+    })
+    .catch((err) => {
+      console.log(`Some error occured while connecting to database: ${err}`);
     });
-
-    isConnected = db.connections[0].readyState === 1;
-    console.log("✅ MongoDB connected.");
-  } catch (err) {
-    console.error("❌ Error connecting to MongoDB:", err.message);
-    process.exit(1); // Exit to avoid running a broken app
-  }
 };

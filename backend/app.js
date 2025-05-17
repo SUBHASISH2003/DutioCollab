@@ -51,7 +51,7 @@ app.use("/api/leave", leaveRoutes);
 
 removeUnverifiedAccounts();
 updateExpiredTasks();
-connection();
+await connection();
 
 app.use(errorMiddleware);
 
