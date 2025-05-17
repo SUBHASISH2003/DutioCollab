@@ -202,8 +202,6 @@ export const updateLeaveRequestStatus = async (req, res) => {
   }
 };
 
-
-// Get Leave Requests by Status
 // Get Leave Requests by Status
 export const getLeaveRequestsByStatus = async (req, res) => {
   try {
@@ -217,30 +215,32 @@ export const getLeaveRequestsByStatus = async (req, res) => {
     let leaveRequests = [];
 
     if (role === "Manager") {
-      // Get employees linked to the manager, including profilePic
+      // Get employees linked to the manager with their email & profilePic
       const employees = await User.find({ linkedManagerKey: managerKey }, "email profilePic");
       const employeeEmails = employees.map((employee) => employee.email);
-      const profilePicsMap = employees.reduce((acc, employee) => {
-        acc[employee.email] = employee.profilePic;
-        return acc;
-      }, {});
 
       // Fetch leave requests for linked employees with the given status
       leaveRequests = await LeaveRequest.find({ email: { $in: employeeEmails }, status });
 
       // Attach profilePic to each leave request
-      leaveRequests = leaveRequests.map((request) => ({
-        ...request.toObject(),
-        profilePic: profilePicsMap[request.email] || "",
-      }));
+      leaveRequests = leaveRequests.map((leave) => {
+        const employee = employees.find((emp) => emp.email === leave.email);
+        return {
+          ...leave.toObject(), // Convert Mongoose document to plain object
+          profilePic: employee?.profilePic || null, // Add profilePic field
+        };
+      });
     } else if (role === "Employee") {
-      // Fetch leave request and employee profilePic
+      // Fetch employee details (only for the logged-in employee)
       const employee = await User.findOne({ email }, "profilePic");
+
+      // Employee can only view their own leave requests with the given status
       leaveRequests = await LeaveRequest.find({ email, status });
 
-      leaveRequests = leaveRequests.map((request) => ({
-        ...request.toObject(),
-        profilePic: employee?.profilePic || "",
+      // Attach profilePic to each leave request
+      leaveRequests = leaveRequests.map((leave) => ({
+        ...leave.toObject(),
+        profilePic: employee?.profilePic || null,
       }));
     } else {
       return res.status(403).json({ message: "Unauthorized access." });

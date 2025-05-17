@@ -34,6 +34,7 @@ export const Login = () => {
     localStorage.setItem('userRole', JSON.stringify(user.role));
     localStorage.setItem('token',JSON.stringify(token));
     localStorage.setItem('roomKey',user.managerKey)
+    localStorage.setItem('LinkedRoom', user.linkedManagerKey)
     const storedUserData = localStorage.getItem('userRole');
     console.log(storedUserData);
     setUser(user);

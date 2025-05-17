@@ -7,12 +7,13 @@ import { errorMiddleware } from "./middlewares/error.js";
 import userRouter from "./routes/user.router.js";
 import { removeUnverifiedAccounts } from "./automation/removeUnverifiedAccounts.js";
 import taskRouter from "./routes/task.router.js";
+import updateExpiredTasks from "./automation/taskScheduler.js";
 import contactRoutes from "./routes/contactUs.router.js";
 import { leaveRoutes } from "./routes/leaveRequest.router.js";
-import morgan from 'morgan';
+import morgan from 'morgan'
 export const app = express();
 config({path:".env"});
-app.use(morgan('dev'));
+
 app.use(
   cors({
     origin: [process.env.FRONTEND_URL],
@@ -21,6 +22,7 @@ app.use(
   })
 );
 
+app.use(morgan('dev'));
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -34,6 +36,13 @@ app.use("/api/contact", contactRoutes);
 app.use("/api/leave", leaveRoutes);
 
 removeUnverifiedAccounts();
+updateExpiredTasks();
 connection();
 
 app.use(errorMiddleware);
+
+
+const port = process.env.PORT;
+app.listen(port,(req,res)=>{
+  console.log(`server is running on port ${port}`);
+})

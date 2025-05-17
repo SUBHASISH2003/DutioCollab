@@ -4,14 +4,18 @@ import axios from '../../../config/axiosConfig';
 
 const Pending = () => {
   const [leaveRequests, setLeaveRequests] = useState([]);
+  const [accpetStatus, setAccpetStatus] = useState("Accept");
+  const [rejectStatus, setRejectStatus] = useState("Reject");
+  
   const LeaveAccept = (e)=>{
     const ApproveId = e.target.value;
     console.log(ApproveId)
-    axios.patch(`/api/leave/status/${ApproveId}`,{
+    axios.patch(`/api/leave/status/update/${ApproveId}`,{
       status:"approved"
     })
     .then((res)=>{
       console.log(res)
+      setAccpetStatus("Accepted")
     })
     .catch((err)=>{
       console.log(err)
@@ -20,11 +24,12 @@ const Pending = () => {
   const LeaveReject = (e)=>{
     const RejectId = e.target.value
     console.log(RejectId)
-    axios.patch(`/api/leave/status/${RejectId}`,{
+    axios.patch(`/api/leave/status/update/${RejectId}`,{
       status:"rejected"
     })
     .then((res)=>{
       console.log(res)
+      setRejectStatus("Rejected")
     })
     .catch((err)=>{
       console.log(err)
@@ -38,7 +43,7 @@ const Pending = () => {
       .catch((err) => {
         console.error("Error fetching leave requests:", err);
       });
-  }, []);
+  },[]);
 
   return (
     <div className="manager-pending-container">
@@ -66,8 +71,8 @@ const Pending = () => {
 
             </div>
             <div className="manager-action-buttons">
-              <button className="manager-accept-btn" value={request._id} onClick={LeaveAccept}>Accept</button>
-              <button className="manager-reject-btn" value={request._id} onClick={LeaveReject}>Reject</button>
+              <button className="manager-accept-btn" value={request._id} onClick={LeaveAccept}>{accpetStatus}</button>
+              <button className="manager-reject-btn" value={request._id} onClick={LeaveReject}>{rejectStatus}</button>
             </div>
           </div>
         ))

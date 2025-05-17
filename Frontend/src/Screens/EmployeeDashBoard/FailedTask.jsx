@@ -14,30 +14,7 @@ const tasks = [
     deadline: '2025-02-12',
     assignedEmployees: 3,
   },
-  {
-    title: 'Develop API for User Authentication',
-    description: 'Develop a secure API for user login and authentication using JWT.',
-    deadline: '2025-02-15',
-    assignedEmployees: 4,
-  },
-  {
-    title: 'Write Unit Tests for Payment Module',
-    description: 'Write comprehensive unit tests for the payment processing module to ensure reliability.',
-    deadline: '2025-02-20',
-    assignedEmployees: 2,
-  },
-  {
-    title: 'Database Optimization',
-    description: 'Optimize database queries to improve application performance.',
-    deadline: '2025-02-22',
-    assignedEmployees: 6,
-  },
-  {
-    title: 'Fix UI Responsiveness Issues',
-    description: 'Ensure that the website is fully responsive across all devices and screen sizes.',
-    deadline: '2025-02-25',
-    assignedEmployees: 3,
-  },
+  
 ];
 
 const FailedTask = () => {

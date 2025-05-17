@@ -1,35 +1,32 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import MainNav from '../../../Components/NavBar/MainNav';
 import '../../../css/EmployeeDash/Room.css';
+import axios from '../../../config/axiosConfig'
 
 const EmployeeRoom = () => {
-  // Sample data for manager and employees
-  const manager = {
-    name: 'John Doe',
-    email: 'johndoe@example.com',
-    age: 45,
-    organization: 'Dutio',
-    profilePic: 'https://randomuser.me/api/portraits/men/1.jpg', // Local image
-  };
-  
-  const employees = [
-    {
-      name: 'Alice Smith',
-      email: 'alice@example.com',
-      age: 30,
-      organization: 'Dutio',
-      profilePic: 'https://randomuser.me/api/portraits/women/2.jpg', // Local image
-    },
-    {
-      name: 'Bob Brown',
-      email: 'bob@example.com',
-      age: 32,
-      organization: 'Dutio',
-      profilePic: 'https://randomuser.me/api/portraits/women/2.jpg', // Local image
-    },
-    // Add more employees as needed
-  ];
-  
+  const [roomData, setRoomData] = useState(null);  // Initialize with null to prevent accessing undefined
+
+  useEffect(() => {
+    const linkedRoom = localStorage.getItem('LinkedRoom');
+    console.log(linkedRoom); // Check if linkedRoom exists and is correct
+
+    if (linkedRoom) {
+      axios.get(`/api/user/room/details/${linkedRoom}`)
+        .then((res) => {
+          setRoomData(res.data.data);  // Set the fetched room data
+          console.log(res.data.data);  // Log the fetched room data to check its structure
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    } else {
+      console.log('No linked room found.');
+    }
+  }, []);
+
+  if (!roomData) {
+    return <div>Loading...</div>;  // Show loading state if roomData is still null
+  }
 
   return (
     <div className="employee-room">
@@ -39,12 +36,12 @@ const EmployeeRoom = () => {
       <div className="manager-section">
         <h2>Manager</h2>
         <div className="manager-card">
-          <img src={manager.profilePic} alt={manager.name} className="profile-pic" />
+          <img src={roomData.manager.profilePic} alt={roomData.manager.name} className="profile-pic" />
           <div className="manager-details">
-            <h3>{manager.name}</h3>
-            <p>Email: {manager.email}</p>
-            <p>Age: {manager.age}</p>
-            <p>Organization: {manager.organization}</p>
+            <h3>{roomData.manager.name}</h3>
+            <p>Email: {roomData.manager.email}</p>
+            <p>Age: {roomData.manager.age}</p>
+            <p>Organization: {roomData.manager.organizationName}</p>
           </div>
         </div>
       </div>
@@ -53,14 +50,14 @@ const EmployeeRoom = () => {
       <div className="employees-section">
         <h2>Employees</h2>
         <div className="employees-list">
-          {employees.map((employee, index) => (
+          {roomData.employees.map((employee, index) => (
             <div key={index} className="employee-card">
               <img src={employee.profilePic} alt={employee.name} className="profile-pic" />
               <div className="employee-details">
                 <h3>{employee.name}</h3>
                 <p>Email: {employee.email}</p>
                 <p>Age: {employee.age}</p>
-                <p>Organization: {employee.organization}</p>
+                {/* <p>Organization: {employee.organizationName}</p> */}
               </div>
             </div>
           ))}

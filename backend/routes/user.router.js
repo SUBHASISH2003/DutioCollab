@@ -11,7 +11,8 @@ import {
   setNewPassword,
   getRoomDetails,
   updateProfile,
-  orgName
+  orgName,
+  deleteLinkedEmployee
 
 } from "../controllers/user.controller.js";
 import { isAuthenticated } from "../middlewares/auth.js";
@@ -28,6 +29,7 @@ router.post("/password/forgot", forgotPassword); //done
 router.post("/password/validate-otp", validateOtp);  //done
 router.put("/password/set-new", setNewPassword); //done
 router.get("/room/details/:managerKey",isAuthenticated, getRoomDetails); //done
-router.put("/update-profile", isAuthenticated, upload.single("profilePic"), updateProfile); //HalfDone
+router.put("/update-profile", isAuthenticated, upload.single("profilePic"), updateProfile); //Done
+router.delete("/delete/:employeeId", isAuthenticated, deleteLinkedEmployee);
 
 export default router;

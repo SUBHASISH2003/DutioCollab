@@ -1,6 +1,7 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import "../../../css/EmployeeDash/EmpPendingLeave.css";
 import EmpCreate from "./EmpCreate";
+import axios from "../../../config/axiosConfig";
 
 const LeaveCard = ({ leaveType, description, totalDays, startDate, endDate }) => {
   return (
@@ -32,45 +33,42 @@ const LeaveCard = ({ leaveType, description, totalDays, startDate, endDate }) =>
 };
 
 const EmpPending = () => {
+  const [leaveData, setLeaveData] = useState([])
+useEffect(() => {
+  axios.get("/api/leave/status/pending")
+  .then((res)=>{
+    setLeaveData(res.data)
+  })
+  .catch((err)=>{
+    console.log(err)
+  })
+},[])
+const calculateTotalDays = (start, end) => {
+  const startDate = new Date(start);
+  const endDate = new Date(end);
+  const differenceInTime = endDate - startDate;
+  return Math.ceil(differenceInTime / (1000 * 60 * 60 * 24)) + 1; // Including the start day
+};
+
   return (
     <div className="emp-pending-container">
       <EmpCreate/>
       <div className="EmpPendingCardCon">
-      <LeaveCard 
-        leaveType="Sick Leave" 
-        description="Medical leave due to illness." 
-        totalDays={5} 
-        startDate="2025-02-10" 
-        endDate="2025-02-15" 
-      />
-      <LeaveCard 
-        leaveType="Sick Leave" 
-        description="Medical leave due to illness." 
-        totalDays={5} 
-        startDate="2025-02-10" 
-        endDate="2025-02-15" 
-      />
-      <LeaveCard 
-        leaveType="Sick Leave" 
-        description="Medical leave due to illness." 
-        totalDays={5} 
-        startDate="2025-02-10" 
-        endDate="2025-02-15" 
-      />
-      <LeaveCard 
-        leaveType="Sick Leave" 
-        description="Medical leave due to illness." 
-        totalDays={5} 
-        startDate="2025-02-10" 
-        endDate="2025-02-15" 
-      />
-      <LeaveCard 
-        leaveType="Sick Leave" 
-        description="Medical leave due to illness." 
-        totalDays={5} 
-        startDate="2025-02-10" 
-        endDate="2025-02-15" 
-      />
+        
+      {leaveData.length > 0 ? (
+          leaveData.map((leave, index) => (
+            <LeaveCard 
+              key={index} 
+              leaveType={leave.leaveType} 
+              description={leave.leaveDescription} 
+              totalDays={calculateTotalDays(leave.startDate, leave.endDate)} 
+              startDate={ new Date(leave.startDate).toISOString().split("T")[0]} 
+              endDate={new Date(leave.endDate).toISOString().split("T")[0]} 
+            />
+          ))
+        ) : (
+          <p>No pending leave requests.</p>
+        )}
       </div>
     </div>
   );

@@ -1,13 +1,16 @@
+import mongoose from "mongoose";
 import ErrorHandler from "../middlewares/error.js";
 import { catchAsyncError } from "../middlewares/catchAsyncError.js";
 import { User } from "../models/user.model.js";
-import {Task} from '../models/task.model.js'
+import { Task } from "../models/task.model.js";
+import { updateUserPerformance } from "../automation/updateUserPerformance.js";
 import { sendEmail } from "../utils/sendEmail.js";
 import { sendToken } from "../utils/sendToken.js";
 import crypto from "crypto";
 import fs from "fs";
 import { generateManagerKey } from "../utils/generateManagerKey.js";
 import cloudinary from "../utils/cloudinary.js";
+import { profile } from "console";
 
 
 const deleteTempFile = (filePath) => {
@@ -15,6 +18,7 @@ const deleteTempFile = (filePath) => {
     if (err) console.error("Failed to delete temp file:", err);
   });
 };
+
 
 export const register = catchAsyncError(async (req, res, next) => {
   try {
@@ -123,8 +127,6 @@ export const register = catchAsyncError(async (req, res, next) => {
   }
 });
 
-
-
 async function sendVerificationCode(
   verificationCode,
   name,
@@ -137,7 +139,7 @@ async function sendVerificationCode(
     sendEmail({ email, subject: "Your Verification Code", message });
     res.status(200).json({
     success: true,
-    message: `Verification email successfully sent to ${name}`,
+    message:` Verification email successfully sent to ${name}`,
     });
   } catch (error) {
     console.log(error);
@@ -233,14 +235,12 @@ export const verifyOTP = catchAsyncError(async (req, res, next) => {
   }
 });
 
-
 export const login = catchAsyncError(async (req, res, next) => {
   const { email, password, role } = req.body;
 
   if (!email || !password || !role) {
     return next(new ErrorHandler("Email and password are required.", 400));
   }
-
   const user = await User.findOne({ email, accountVerified: true }).select(
     "+password"
   );
@@ -248,6 +248,7 @@ export const login = catchAsyncError(async (req, res, next) => {
     return next(new ErrorHandler("Invalid email or password.", 400));
   }
 
+  
   //role matching 
   if(user.role != role){
     return res.status(400).json({
@@ -277,12 +278,16 @@ export const logout = catchAsyncError(async (req, res, next) => {
 
 export const getUser = catchAsyncError(async (req, res, next) => {
   const user = req.user;
+
+  if (user.role === "Employee") {
+    await updateUserPerformance(user._id); // Ensure latest stats before sending response
+  }
+
   res.status(200).json({
     success: true,
     user,
   });
 });
-
 
 export const forgotPassword = catchAsyncError(async (req, res, next) => {
   const { email } = req.body;
@@ -330,7 +335,7 @@ export const forgotPassword = catchAsyncError(async (req, res, next) => {
 
     res.status(200).json({
       success: true,
-      message: `OTP sent to ${user.email} successfully.`,
+      message:` OTP sent to ${user.email} successfully.`,
     });
   } catch (error) {
     user.resetPasswordOtp = undefined;
@@ -340,7 +345,6 @@ export const forgotPassword = catchAsyncError(async (req, res, next) => {
     return next(new ErrorHandler("Failed to send OTP. Please try again.", 500));
   }
 });
-
 
 export const validateOtp = catchAsyncError(async (req, res, next) => {
   const { email, otp } = req.body;
@@ -393,7 +397,6 @@ export const setNewPassword = catchAsyncError(async (req, res, next) => {
   });
 });
 
-
 export const getRoomDetails = async (req, res) => {
   try {
     const { managerKey } = req.params;
@@ -426,11 +429,17 @@ export const getRoomDetails = async (req, res) => {
         manager: {
           name: manager.name,
           email: manager.email,
+          age: manager.age,
+          organizationName: manager.organizationName,
+          profilePic: manager.profilePic,
         },
         employees: employees.map((emp) => ({
           name: emp.name,
           email: emp.email,
-          profilePic: emp.profilePic
+          age: emp.age,
+          organizationName: emp.organizationName,
+          profilePic: emp.profilePic,
+
         })),
       };
 
@@ -443,52 +452,20 @@ export const getRoomDetails = async (req, res) => {
         return res.status(403).json({ message: "You are not authorized to view this data." });
       }
 
-      // Fetch employee performance and task stats
-      const employeeData = await Promise.all(
-        employees.map(async (employee) => {
-          // Find tasks assigned to the employee
-          const tasks = await Task.find({ assignedEmployees: employee._id });
-
-          let acceptedTasks = 0,
-            rejectedTasks = 0,
-            completedTasks = 0,
-            failedTasks = 0,
-            pendingTasks = 0;
-
-          tasks.forEach((task) => {
-            const response = task.employeeResponses.find(
-              (resp) => resp.employee.toString() === employee._id.toString()
-            );
-
-            if (response) {
-              if (response.response === "accept") acceptedTasks++;
-              if (response.response === "reject") rejectedTasks++;
-
-              if (response.status === "completed") completedTasks++;
-              if (response.status === "failed") failedTasks++;
-              if (response.status === "pending") pendingTasks++;
-            }
-          });
-
-          const totalTasks = completedTasks + failedTasks + pendingTasks;
-          const performance = totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0;
-
-          let grade = performance >= 80 ? "Excellent" : performance >= 60 ? "Good" : performance >= 30 ? "Average" : "Bad";
-
-          return {
-            name: employee.name,
-            email: employee.email,
-            profilePic: employee.profilePic,
-            performance: `${performance.toFixed(2)}%`,
-            grade,
-            totalAcceptedTasks: acceptedTasks,
-            totalRejectedTasks: rejectedTasks,
-            totalCompletedTasks: completedTasks,
-            totalPendingTasks: pendingTasks,
-            totalFailedTasks: failedTasks,
-          };
-        })
-      );
+      const employeeData = employees.map((employee) => ({
+        name: employee.name,
+        email: employee.email,
+        profilePic: employee.profilePic,
+        //make a leave status here 
+        totalNoOfAssignTask: employee.totalNoOfAssignTask,
+        totalCompletedTasks: employee.totalCompletedTasks,
+        totalAcceptedTasks: employee.totalAcceptedTasks,
+        totalRejectedTasks: employee.totalRejectedTasks,
+        totalPendingTasks: employee.totalPendingTasks,
+        totalFailedTasks: employee.totalFailedTasks,
+        performance:`${employee.performance.toFixed(2)}%`,
+        grade: employee.grade,
+      }));
 
       const response = {
         managerKey: manager.managerKey,
@@ -511,8 +488,8 @@ export const getRoomDetails = async (req, res) => {
 };
 
 export const updateProfile = catchAsyncError(async (req, res, next) => {
-  const { bio ,organizationName} = req.body;
-
+  const { bio, organizationName } = req.body;
+  
   // Ensure the user is logged in
   const userId = req.user._id;
 
@@ -530,7 +507,7 @@ export const updateProfile = catchAsyncError(async (req, res, next) => {
       // Upload new image to Cloudinary
       const result = await cloudinary.uploader.upload(req.file.path, {
         folder: "profile_pics",
-        public_id: `${userId}-profile-pic`,
+        public_id:`${userId}-profile-pic`,
         overwrite: true,
         transformation: { width: 200, height: 200, crop: "fill" },
       });
@@ -547,10 +524,22 @@ export const updateProfile = catchAsyncError(async (req, res, next) => {
     }
   }
 
-  // Update the fields if provided
-  if(organizationName) user.organizationName = organizationName
+  // Update bio if provided
   if (bio) user.bio = bio;
   user.profilePic = profilePicUrl;
+
+  // Allow organizationName update only if the user is a Manager
+  if (organizationName && user.role === "Manager") {
+    user.organizationName = organizationName;
+
+    // Update all linked employees with the new organization name
+    await User.updateMany(
+      { linkedManagerKey: user.managerKey },
+      { $set: { organizationName } }
+    );
+  } else if (organizationName) {
+    return next(new ErrorHandler("Only managers can update organization name.", 403));
+  }
 
   // Save the updated user
   try {
@@ -562,12 +551,46 @@ export const updateProfile = catchAsyncError(async (req, res, next) => {
       user: {
         bio: user.bio,
         profilePic: user.profilePic,
+        organizationName: user.organizationName,
       },
     });
   } catch (error) {
     return next(new ErrorHandler("Failed to save user profile.", 500));
   }
 });
+
+export const deleteLinkedEmployee = async (req, res) => {
+  try {
+    const { employeeId } = req.params;
+    const managerId = req.user.id;
+
+    // Validate MongoDB ObjectId
+    if (!mongoose.Types.ObjectId.isValid(employeeId)) {
+      return res.status(400).json({ message: "Invalid employee ID format." });
+    }
+
+    // Find the manager and ensure they have the right role
+    const manager = await User.findById(managerId);
+    if (!manager || manager.role !== "Manager") {
+      return res.status(403).json({ message: "Access denied. Only managers can delete employees." });
+    }
+
+    // Find the employee while ensuring they belong to the manager
+    const employee = await User.findOne({ _id: employeeId, linkedManagerKey: manager.managerKey, role: "Employee" });
+    if (!employee) {
+      return res.status(404).json({ message: "Employee not found or not linked to this manager." });
+    }
+
+    // Delete the employee and atomically update manager's linked employee count
+    await User.findByIdAndDelete(employeeId);
+    await User.findByIdAndUpdate(managerId, { $inc: { noOfLinkedEmp: -1 } });
+
+    res.status(200).json({ message: "Employee successfully removed." });
+  } catch (error) {
+    console.error("Error deleting employee:", error);
+    res.status(500).json({ message: "Internal server error", error: error.message });
+  }
+};
 
 export const orgName = catchAsyncError(async (req, res, next) => {
   const { managerKey } = req.body;
@@ -591,6 +614,3 @@ export const orgName = catchAsyncError(async (req, res, next) => {
     next(new ErrorHandler("Internal server error.", 500));
   }
 });
-
-
-

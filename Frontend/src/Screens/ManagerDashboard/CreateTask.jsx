@@ -59,15 +59,15 @@ const CreateTask = () => {
     })
     .then((res) => {
       console.log(res);
-      setTitle("");
-      setDescription("");
-      setDeadline("");
-      setTaskType("");
-      setAssignedEmployees([]);
     })
     .catch((error) => {
       console.log(error);
     });
+    setTitle("");
+      setDescription("");
+      setDeadline("");
+      setTaskType("");
+      setAssignedEmployees([]);
   };
 
   return (

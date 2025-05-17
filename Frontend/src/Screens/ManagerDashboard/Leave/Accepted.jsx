@@ -12,7 +12,7 @@ const Accepted = () => {
     .catch((err)=>{
       console.log(err)
     })
-  }, [])
+  },[])
   
   return (
     <div className="accepted-container">

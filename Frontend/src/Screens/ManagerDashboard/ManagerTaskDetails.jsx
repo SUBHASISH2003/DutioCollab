@@ -20,7 +20,7 @@ const ManagerTaskDetails = () => {
       .catch((err) => {
         console.log(err);
       });
-  }, []);
+  },[]);
 
   return (
     <div className="manager-task-container">

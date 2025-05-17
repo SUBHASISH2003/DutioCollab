@@ -40,7 +40,7 @@ const Rejected = () => {
                 <td data-label="Name">{entry.name}</td>
                 <td data-label="Email">{entry.email}</td>
                 <td data-label="Leave Type">{entry.leaveType}</td>
-                <td data-label="Leave Duration">{Math.ceil((new Date(entry.endDate) - new Date(entry.startDate))/(100*60*60*24))}</td>
+                <td data-label="Leave Duration">{Math.ceil((new Date(entry.endDate) - new Date(entry.startDate))/(1000*60*60*24))}</td>
                 <td data-label="Status">
                   <span className="RejectedStatus">{entry.status}</span>
                 </td>

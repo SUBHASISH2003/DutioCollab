@@ -1,15 +1,15 @@
 import React, { useState } from "react";
 import "../../../css/EmployeeDash/LeaveCreate.css";
-
+import axios from '../../../config/axiosConfig'
 const EmpCreate = () => {
   const [leaveType, setLeaveType] = useState("");
-  const [description, setDescription] = useState("");
+  const [leaveDescription, setLeaveDescription] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [timePeriod, setTimePeriod] = useState("");
 
   const handleLeaveTypeChange = (e) => setLeaveType(e.target.value);
-  const handleDescriptionChange = (e) => setDescription(e.target.value);
+  const handleDescriptionChange = (e) => setLeaveDescription(e.target.value);
   const handleStartDateChange = (e) => {
     setStartDate(e.target.value);
     calculateDays(e.target.value, endDate);
@@ -31,7 +31,22 @@ const EmpCreate = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log("Leave Request Submitted:", { leaveType, description, startDate, endDate, timePeriod });
+    axios.post('/api/leave/create',{
+      leaveType,
+      leaveDescription,
+      startDate,
+      endDate
+    })
+    .then((res)=>{
+      console.log(res)
+    })
+    .catch((err)=>{
+      console.log(err)
+    })
+    setLeaveType("");
+    setLeaveDescription("");
+    setStartDate("");
+    setEndDate("")
   };
 
   return (
@@ -44,13 +59,15 @@ const EmpCreate = () => {
             <option value="">Select Leave Type</option>
             <option value="Sick Leave">Sick Leave</option>
             <option value="Casual Leave">Casual Leave</option>
-            <option value="Paid Leave">Paid Leave</option>
+            <option value="Family Leave">Family Leave</option>
+            <option value="Paternity Leave">Paternity Leave</option>
+            <option value="Maternity Leave">Maternity Leave</option>
           </select>
         </div>
 
         <div className="leave-form-group">
           <label>Leave Description</label>
-          <textarea name="description" value={description} onChange={handleDescriptionChange} required></textarea>
+          <textarea name="description" value={leaveDescription} onChange={handleDescriptionChange} required></textarea>
         </div>
 
         <div className="leave-form-group">

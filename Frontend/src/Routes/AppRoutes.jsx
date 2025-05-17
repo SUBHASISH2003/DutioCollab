@@ -23,6 +23,7 @@ import EmpPending from "../Screens/EmployeeDashBoard/Leave/EmpPending.jsx";
 import EmpCreate from '../Screens/EmployeeDashBoard/Leave/EmpCreate.jsx'
 import EmpAccepted from '../Screens/EmployeeDashBoard/Leave/EmpAccepted.jsx'
 import EmpRejected from '../Screens/EmployeeDashBoard/Leave/EmpRejected.jsx'
+import ChatBox from "../Screens/ChatBox.jsx";
 const AppRoutes = () => {
   return (
     <React.StrictMode>
@@ -55,6 +56,9 @@ const AppRoutes = () => {
               <Route path="Rejected" element={<EmpRejected/>}/>
             </Route>
             <Route path="/contact" element={<Contact/>}/>
+            <Route path="/manager/chat" element={<ChatBox/>}/>
+            <Route path="/Employee/chat" element={<ChatBox/>}/>
+
           </Routes>
         </BrowserRouter>
       </UserContextProvider>

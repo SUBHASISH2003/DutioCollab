@@ -1,7 +1,6 @@
 import express from 'express';
-import { createTask, getTasks, updateTask, markTaskAsComplete , getTaskDetails } from '../controllers/task.controller.js';
+import { createTask, getTasks, updateTask, markTaskAsComplete, getTaskDetails, getTasksByStatus} from '../controllers/task.controller.js';
 import { isAuthenticated } from "../middlewares/auth.js";
-
 
 const router = express.Router();
 
@@ -18,5 +17,10 @@ router.patch('/response/:taskId', isAuthenticated, updateTask);
 router.patch('/status/:taskId', isAuthenticated, markTaskAsComplete);
 
 router.get("/:taskId", isAuthenticated, getTaskDetails);
+
+// Get tasks by status (pending, failed, completed)
+router.get("/:status", isAuthenticated, getTasksByStatus);
+
+
 
 export default router;

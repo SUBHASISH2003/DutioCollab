@@ -3,18 +3,24 @@ import MainNav from "../../../Components/NavBar/MainNav";
 import "../../../css/ManagerDash/ManagerRoom.css";
 import axios from "../../../config/axiosConfig";
 import profile from "../../../assets/Images/profile.png";
+
 const ManagerRoom = () => {
   const [employees, setEmployees] = useState([]);
-  const [key, setKey] = useState(null); // Start as null
+  const [key, setKey] = useState(null);
 
-  // Get roomKey from localStorage on mount
-
-  // Fetch employees once key is set
+  // Step 1: Get room key from localStorage
   useEffect(() => {
-    // Ensure key is valid
     let storedKey = localStorage.getItem("roomKey");
+    if (storedKey) {
+      storedKey = storedKey.replace(/"/g, "").trim(); // Remove quotes
+      setKey(storedKey);
+    }
+  }, []); // Runs only once on mount
 
-    setKey((storedKey = storedKey.replace(/"/g, "").trim()));
+  // Step 2: Fetch employee data once key is available
+  useEffect(() => {
+    if (!key) return; // Avoid API call if key is still null
+
     console.log("Fetching data for roomKey:", key);
     axios
       .get(`/api/user/room/details/${key}`)
@@ -25,7 +31,7 @@ const ManagerRoom = () => {
       .catch((err) => {
         console.error("Error fetching data:", err);
       });
-  }, [key]); // Re-run when key changes
+  }, [key]); // Runs every time `key` changes
 
   return (
     <div className="ManagerRoomMainCon">
@@ -43,14 +49,19 @@ const ManagerRoom = () => {
                 />
                 <h2>{employee.name}</h2>
                 <p className="email">{employee.email}</p>
-                <h3 className={`performance ${employee.grade.toLowerCase()}`}>
-                  {employee.grade} Performance
+                <h3 className={`performance ${employee.grade ? employee.grade.toLowerCase() : 'default'}`}>
+                    {employee.grade ? employee.grade : "No Grade"} Performance
                 </h3>
 
+
+
                 <p>
-                  <strong>performace: </strong> {employee.performance}
+                  <strong>Performance:</strong> {employee.performance}
                 </p>
                 <div className="task-info">
+                  <p>
+                    <strong>Total Assigned Task:</strong> {employee.totalNoOfAssignTask}
+                  </p>
                   <p>
                     <strong>Accepted:</strong> {employee.totalAcceptedTasks}
                   </p>
