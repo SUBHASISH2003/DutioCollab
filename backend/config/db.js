@@ -9,8 +9,6 @@ export const connection = async () => {
   try {
     const db = await mongoose.connect(process.env.MONGO_URI || "mongodb+srv://codingsaikat:saikat123@cluster0.fgfcsxr.mongodb.net/", {
       dbName: "WorkHive",
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
     });
 
     isConnected = true;
