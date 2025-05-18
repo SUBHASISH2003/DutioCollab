@@ -19,8 +19,8 @@ config({ path: ".env" });
 app.use(
   cors({
     origin:"https://dutio-collab.vercel.app",
-    credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    credentials: true,
   })
 );
 
@@ -41,4 +41,6 @@ updateExpiredTasks();
 
 app.use(errorMiddleware);
 
-export default app;
+app.listen(process.env.PORT, (req , res) =>{
+    console.log(`Server is running on port ${process.env.PORT}`)
+})
