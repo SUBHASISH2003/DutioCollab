@@ -10,19 +10,20 @@ import taskRouter from "./routes/task.router.js";
 import updateExpiredTasks from "./automation/taskScheduler.js";
 import contactRoutes from "./routes/contactUs.router.js";
 import { leaveRoutes } from "./routes/leaveRequest.router.js";
-import morgan from 'morgan'
-export const app = express();
-config({path:".env"});
+import morgan from "morgan";
+
+// Setup
+const app = express();
+config({ path: ".env" });
 
 app.use(
   cors({
-    origin:process.env.FRONTEND_URL || "http://localhost:5173",
+    origin: process.env.FRONTEND_URL || "http://localhost:5173",
     credentials: true,
   })
 );
- 
 
-app.use(morgan('dev'));
+app.use(morgan("dev"));
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -30,18 +31,15 @@ app.use(express.urlencoded({ extended: true }));
 connection();
 
 app.use("/api/user", userRouter);
-
 app.use("/api/task", taskRouter);
-
 app.use("/api/contact", contactRoutes);
-
 app.use("/api/leave", leaveRoutes);
 
 removeUnverifiedAccounts();
 updateExpiredTasks();
 
 app.use(errorMiddleware);
-// export default app;
-app.listen(4000,(req,res)=>{
-  console.log("System is running in port 4000");
-})
+
+export default (req, res) => {
+  app(req, res);
+};
