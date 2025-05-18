@@ -7,9 +7,7 @@ export const connection = async () => {
   if (isConnected) return;
 
   try {
-    const db = await mongoose.connect(process.env.MONGO_URI || "mongodb+srv://codingsaikat:saikat123@cluster0.fgfcsxr.mongodb.net/", {
-      dbName: "WorkHive",
-    });
+    const db = await mongoose.connect(process.env.MONGO_URI);
 
     isConnected = true;
     console.log("✅ Connected to database.");
