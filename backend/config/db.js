@@ -1,6 +1,7 @@
 // utils/db.js
 import mongoose from "mongoose";
-
+import { config } from "dotenv";
+config({ path: ".env" });
 let isConnected = false;
 
 export const connection = async () => {
