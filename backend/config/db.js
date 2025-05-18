@@ -1,13 +1,22 @@
+// utils/db.js
 import mongoose from "mongoose";
 
+let isConnected = false;
+
 export const connection = async () => {
-  await mongoose.connect(process.env.MONGO_URI || "mongodb+srv://codingsaikat:saikat123@cluster0.fgfcsxr.mongodb.net/", {
+  if (isConnected) return;
+
+  try {
+    const db = await mongoose.connect(process.env.MONGO_URI || "mongodb+srv://codingsaikat:saikat123@cluster0.fgfcsxr.mongodb.net/", {
       dbName: "WorkHive",
-    })
-    .then(() => {
-      console.log("Connected to database.");
-    })
-    .catch((err) => {
-      console.log(`Some error occured while connecting to database: ${err}`);
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
     });
+
+    isConnected = true;
+    console.log("✅ Connected to database.");
+  } catch (err) {
+    console.error("❌ MongoDB connection error:", err);
+    throw err;
+  }
 };
