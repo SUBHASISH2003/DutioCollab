@@ -14,26 +14,13 @@ import morgan from 'morgan'
 export const app = express();
 config({path:".env"});
 
-const allowedOrigins = [
-  "https://dutio-collab.vercel.app",
-  "http://localhost:5173",
-];
-
 app.use(
   cors({
-    origin: function (origin, callback) {
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error("Not allowed by CORS"));
-      }
-    },
-    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+    origin:process.env.FRONTEND_URL || "http://localhost:5173",
     credentials: true,
   })
 );
-
-app.options("*", cors()); 
+ 
 
 app.use(morgan('dev'));
 app.use(cookieParser());
@@ -54,4 +41,7 @@ removeUnverifiedAccounts();
 updateExpiredTasks();
 
 app.use(errorMiddleware);
-export default app;
+// export default app;
+app.listen(4000,(req,res)=>{
+  console.log("System is running in port 4000");
+})

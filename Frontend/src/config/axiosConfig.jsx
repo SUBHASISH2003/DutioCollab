@@ -2,7 +2,7 @@ import axios from 'axios';
 
 
 const axiosInstance = axios.create({
-    baseURL:"https://dutio-collab-id9l.vercel.app", 
+    baseURL:"http://localhost:4000", 
     withCredentials: true,
 })
 
