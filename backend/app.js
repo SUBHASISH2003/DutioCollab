@@ -16,13 +16,13 @@ import morgan from "morgan";
 const app = express();
 config({ path: ".env" });
 
-app.use(cors({
-  origin: "https://dutio-collab.vercel.app",
-  credentials: true,
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With", "Accept"],
-}));
-
+app.use(
+  cors({
+    origin:"https://dutio-collab.vercel.app",
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    credentials: true,
+  })
+);
 
 app.use(morgan("dev"));
 app.use(cookieParser());
