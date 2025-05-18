@@ -41,6 +41,4 @@ updateExpiredTasks();
 
 app.use(errorMiddleware);
 
-export default (req, res) => {
-  app(req, res);
-};
+export default app;
