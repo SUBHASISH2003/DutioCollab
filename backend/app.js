@@ -18,11 +18,13 @@ config({ path: ".env" });
 
 app.use(
   cors({
-    origin:"https://dutio-collab.vercel.app",
+    origin: "https://dutio-collab.vercel.app",
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     credentials: true,
+    allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
+
 
 app.use(morgan("dev"));
 app.use(cookieParser());
