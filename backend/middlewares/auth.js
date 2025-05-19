@@ -15,7 +15,6 @@ export const isAuthenticated = catchAsyncError(async (req, res, next) => {
   ) {
     token = req.headers.authorization.split(" ")[1];
   }
-  console.log("token is - ",token);
 
   if (!token) {
     return next(new ErrorHandler(`User is not authenticated. with ${token}` , 401));
