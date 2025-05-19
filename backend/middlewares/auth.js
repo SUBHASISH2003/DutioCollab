@@ -4,20 +4,10 @@ import jwt from "jsonwebtoken";
 import { User } from "../models/user.model.js";
 
 export const isAuthenticated = catchAsyncError(async (req, res, next) => {
-  let token;
-
-  if (req.cookies && req.cookies.token) {
-    token = req.cookies.token;
-  }
-  else if (
-    req.headers.authorization &&
-    req.headers.authorization.startsWith("Bearer ")
-  ) {
-    token = req.headers.authorization.split(" ")[1];
-  }
+  const token = req.cookies.token;
 
   if (!token) {
-    return next(new ErrorHandler(`User is not authenticated. with ${token}` , 401));
+    return next(new ErrorHandler(`User is not authenticated. Token missing. ${token}`, 401));
   }
 
   let decoded;
@@ -33,6 +23,5 @@ export const isAuthenticated = catchAsyncError(async (req, res, next) => {
   }
 
   req.user = user;
-
   next();
 });
