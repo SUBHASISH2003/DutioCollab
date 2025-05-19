@@ -7,7 +7,7 @@ export const isAuthenticated = catchAsyncError(async (req, res, next) => {
   const token = req.cookies.token;
 
   if (!token) {
-    return next(new ErrorHandler(`User is not authenticated. Token missing. ${token}`, 401));
+    return next(new ErrorHandler(`User is not authenticated. Token missing. with token =  ${token}`, 401));
   }
 
   let decoded;
