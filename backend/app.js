@@ -12,7 +12,7 @@ import contactRoutes from "./routes/contactUs.router.js";
 import { leaveRoutes } from "./routes/leaveRequest.router.js";
 import morgan from "morgan";
 
-// Setup
+
 const app = express();
 config({ path: ".env" });
 
