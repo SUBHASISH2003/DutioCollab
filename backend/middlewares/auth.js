@@ -3,8 +3,12 @@ import ErrorHandler from "./error.js";
 import jwt from "jsonwebtoken";
 import { User } from "../models/user.model.js";
 
+import cookieParser from "cookie-parser";
+import express from 'express'
+const app = express();
+app.use(cookieParser());
+
 export const isAuthenticated = catchAsyncError(async (req, res, next) => {
-  // console.log(req.cookies);
   const token = req.cookies.token;
 
   if (!token) {
