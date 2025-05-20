@@ -4,37 +4,24 @@ import axios from '../../../config/axiosConfig';
 
 const Pending = () => {
   const [leaveRequests, setLeaveRequests] = useState([]);
-  const [accpetStatus, setAccpetStatus] = useState("Accept");
-  const [rejectStatus, setRejectStatus] = useState("Reject");
-  
-  const LeaveAccept = (e)=>{
-    const ApproveId = e.target.value;
-    console.log(ApproveId)
-    axios.patch(`/api/leave/status/update/${ApproveId}`,{
-      status:"approved"
-    })
-    .then((res)=>{
-      console.log(res)
-      setAccpetStatus("Accepted")
-    })
-    .catch((err)=>{
-      console.log(err)
-    })
-  }
-  const LeaveReject = (e)=>{
-    const RejectId = e.target.value
-    console.log(RejectId)
-    axios.patch(`/api/leave/status/update/${RejectId}`,{
-      status:"rejected"
-    })
-    .then((res)=>{
-      console.log(res)
-      setRejectStatus("Rejected")
-    })
-    .catch((err)=>{
-      console.log(err)
-    })
-  }
+
+  const updateStatus = (id, status) => {
+    axios.patch(`/api/leave/status/update/${id}`, { status })
+      .then((res) => {
+        setLeaveRequests(prev =>
+          prev.map(req =>
+            req._id === id ? { ...req, status } : req
+          )
+        );
+      })
+      .catch((err) => {
+        console.error(`Error updating status:`, err);
+      });
+  };
+
+  const handleAccept = (id) => updateStatus(id, "approved");
+  const handleReject = (id) => updateStatus(id, "rejected");
+
   useEffect(() => {
     axios.get("/api/leave/status/pending")
       .then((res) => {
@@ -43,7 +30,7 @@ const Pending = () => {
       .catch((err) => {
         console.error("Error fetching leave requests:", err);
       });
-  },[]);
+  }, []);
 
   return (
     <div className="manager-pending-container">
@@ -68,11 +55,22 @@ const Pending = () => {
               <p>
                 Total days: <strong>{Math.ceil((new Date(request.endDate) - new Date(request.startDate)) / (1000 * 60 * 60 * 24))}</strong>
               </p>
-
             </div>
             <div className="manager-action-buttons">
-              <button className="manager-accept-btn" value={request._id} onClick={LeaveAccept}>{accpetStatus}</button>
-              <button className="manager-reject-btn" value={request._id} onClick={LeaveReject}>{rejectStatus}</button>
+              <button
+                className="manager-accept-btn"
+                onClick={() => handleAccept(request._id)}
+                disabled={request.status === "approved"}
+              >
+                {request.status === "approved" ? "Accepted" : "Accept"}
+              </button>
+              <button
+                className="manager-reject-btn"
+                onClick={() => handleReject(request._id)}
+                disabled={request.status === "rejected"}
+              >
+                {request.status === "rejected" ? "Rejected" : "Reject"}
+              </button>
             </div>
           </div>
         ))
