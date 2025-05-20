@@ -29,7 +29,7 @@ export const Login = () => {
     role
   })
   .then((response) => {
-    const { user, token } = response.data; 
+    const { user, token } = response.data;
     setRole(user.role);
     localStorage.setItem('userRole', JSON.stringify(user.role));
     localStorage.setItem('token',JSON.stringify(token));
