@@ -22,7 +22,6 @@ export const Login = () => {
       setErrorMessage("Please select a role.");
       return;
     }
-    console.log("email = ",email," password = ",password," role = ",role);
     axios.post('/api/user/login', {
     email,
     password,
