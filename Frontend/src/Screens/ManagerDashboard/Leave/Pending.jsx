@@ -15,10 +15,18 @@ const Pending = () => {
       });
   };
 
+  useEffect(() => {
+  const interval = setInterval(() => {
+    fetchPendingLeaves();
+  }, 2000); // 2000 ms = 2 seconds
+
+  return () => clearInterval(interval); // Cleanup on unmount
+}, []);
+  
   const updateStatus = (id, status) => {
     axios.patch(`/api/leave/status/update/${id}`, { status })
       .then(() => {
-        fetchPendingLeaves();  // Re-fetch pending leaves after update
+        fetchPendingLeaves();
       })
       .catch((err) => {
         console.error(`Error updating status:`, err);

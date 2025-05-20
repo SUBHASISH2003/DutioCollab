@@ -46,7 +46,7 @@ const EmpPending = () => {
     fetchPendingLeaves();
 
     const handleFocus = () => {
-      fetchPendingLeaves(); // Refetch when user returns to the tab
+      fetchPendingLeaves(); 
     };
 
     window.addEventListener("focus", handleFocus);
