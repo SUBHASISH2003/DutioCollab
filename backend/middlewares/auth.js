@@ -7,7 +7,6 @@ import { User } from "../models/user.model.js";
 export const isAuthenticated = catchAsyncError(async (req, res, next) => {
   let token = null;
 
-  // Check Authorization header (Bearer token)
   if (req.headers.authorization && req.headers.authorization.startsWith("Bearer ")) {
     token = req.headers.authorization.split(" ")[1];
   }
