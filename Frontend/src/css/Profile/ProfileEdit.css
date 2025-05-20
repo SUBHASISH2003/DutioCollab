@@ -67,3 +67,15 @@
 .OrgCon input{
   width: 100%;
 }
+
+
+.error-text {
+  color: red;
+  font-size: 0.9rem;
+  margin-top: 5px;
+}
+
+.server-error {
+  margin-top: 15px;
+  text-align: center;
+}
