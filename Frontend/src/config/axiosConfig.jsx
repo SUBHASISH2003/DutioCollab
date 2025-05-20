@@ -2,10 +2,10 @@
 import axios from 'axios';
 
 const axiosInstance = axios.create({
-  baseURL: "https://dutiocollab-production.up.railway.app", // your backend URL
+  baseURL: "https://dutiocollab-production.up.railway.app",
+  withCredentials: true
 });
 
-// Automatically add token from localStorage to Authorization header
 axiosInstance.interceptors.request.use((config) => {
   const token = JSON.parse(localStorage.getItem("token"));
   if (token) {
