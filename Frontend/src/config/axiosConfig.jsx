@@ -1,22 +1,9 @@
-// src/config/axiosConfig.jsx
 import axios from 'axios';
 
-const axiosInstance = axios.create({
-  baseURL: "https://dutiocollab-production.up.railway.app",
-  headers: {
-    'Content-Type': 'application/json',
-  },
-  withCredentials: true,
-});
 
-axiosInstance.interceptors.request.use((config) => {
-  const token = JSON.parse(localStorage.getItem("token"));
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
-}, (error) => {
-  return Promise.reject(error);
-});
+const axiosInstance = axios.create({
+    baseURL: "https://dutiocollab-production.up.railway.app", 
+    withCredentials: true,
+})
 
 export default axiosInstance;
