@@ -5,14 +5,20 @@ import axios from '../../../config/axiosConfig';
 const Pending = () => {
   const [leaveRequests, setLeaveRequests] = useState([]);
 
+  const fetchPendingLeaves = () => {
+    axios.get("/api/leave/status/pending")
+      .then((res) => {
+        setLeaveRequests(res.data);
+      })
+      .catch((err) => {
+        console.error("Error fetching leave requests:", err);
+      });
+  };
+
   const updateStatus = (id, status) => {
     axios.patch(`/api/leave/status/update/${id}`, { status })
-      .then((res) => {
-        setLeaveRequests(prev =>
-          prev.map(req =>
-            req._id === id ? { ...req, status } : req
-          )
-        );
+      .then(() => {
+        fetchPendingLeaves();  // Re-fetch pending leaves after update
       })
       .catch((err) => {
         console.error(`Error updating status:`, err);
@@ -23,13 +29,7 @@ const Pending = () => {
   const handleReject = (id) => updateStatus(id, "rejected");
 
   useEffect(() => {
-    axios.get("/api/leave/status/pending")
-      .then((res) => {
-        setLeaveRequests(res.data);
-      })
-      .catch((err) => {
-        console.error("Error fetching leave requests:", err);
-      });
+    fetchPendingLeaves();
   }, []);
 
   return (

@@ -12,15 +12,19 @@ const ManagerTaskDetails = () => {
   }
 
   useEffect(() => {
-    axios
-      .get("/api/task/get")
-      .then((res) => {
-        setTaskDetails(res.data);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  },[]);
+  const fetchTasks = () => {
+    axios.get("/api/task/get")
+      .then(res => setTaskDetails(res.data))
+      .catch(console.error);
+  };
+
+  fetchTasks();
+
+  const intervalId = setInterval(fetchTasks, 5000); 
+
+  return () => clearInterval(intervalId);
+}, []);
+
 
   return (
     <div className="manager-task-container">
