@@ -2,8 +2,8 @@ import axios from 'axios';
 
 
 const axiosInstance = axios.create({
-    // baseURL: "https://dutiocollab-production.up.railway.app", 
-    baseURL: "http://localhost:4000", // Use this for local development
+    
+    baseURL: "dutiocollab-production-660d.up.railway.app",
     withCredentials: true,
 })
 
