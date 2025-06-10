@@ -19,9 +19,7 @@ config({ path: ".env" });
 app.use(
   cors({
     origin: process.env.FRONTEND_URL,
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS" , "PATCH"],
-    credentials: true,
-    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true
   })
 );
 
