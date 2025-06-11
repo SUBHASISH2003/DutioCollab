@@ -3,7 +3,7 @@ import axios from 'axios';
 
 const axiosInstance = axios.create({
     
-    baseURL: "https://dutiocollab-production-660d.up.railway.app",
+    baseURL: "https://dutio.up.railway.app",
 
     withCredentials: true,
 })
