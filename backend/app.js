@@ -31,6 +31,11 @@ app.use(express.urlencoded({ extended: true }));
 
 connection();
 
+
+app.get("/api/test", (req, res) => {
+  res.json({ success: true, message: "Backend is working" });
+});
+
 app.use("/api/user", userRouter);
 app.use("/api/task", taskRouter);
 app.use("/api/contact", contactRoutes);
